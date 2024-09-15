@@ -2,14 +2,12 @@
 
 # Creates installer for different channel versions.
 # Run this script from the local BlackHole repo's root directory.
-# If this script is not executable from the Terminal, 
+# If this script is not executable from the Terminal,
 # it may need execute permissions first by running this command:
 #   chmod +x create_installer.sh
 
 driverName="BlackHole"
-devTeamID="Q5C99V536K" # ⚠️ Replace this with your own developer team ID
-notarize=true # To skip notarization, set this to false
-notarizeProfile="notarize" # ⚠️ Replace this with your own notarytool keychain profile name
+notarize=false # Notarization is disabled in this version
 
 ############################################################################
 
@@ -42,37 +40,37 @@ for channels in 2; do #16 64 128 256; do
       -configuration Release \
       -target BlackHole CONFIGURATION_BUILD_DIR=build \
       PRODUCT_BUNDLE_IDENTIFIER=$bundleID \
-      GCC_PREPROCESSOR_DEFINITIONS='$GCC_PREPROCESSOR_DEFINITIONS 
-      kNumber_Of_Channels='$channels' 
-      kPlugIn_BundleID=\"'$bundleID'\" 
-      kDriver_Name=\"'$driverName'\"'
+      GCC_PREPROCESSOR_DEFINITIONS='$GCC_PREPROCESSOR_DEFINITIONS
+      kNumber_Of_Channels='$channels'
+      kPlugIn_BundleID=\"'$bundleID'\"
+      kDriver_Name=\"'$driverName'\"' \
+      CODE_SIGN_IDENTITY="" \
+      CODE_SIGNING_REQUIRED=NO
     
+    if [ ! -f build/BlackHole.driver/Contents/Info.plist ]; then
+        echo "Build failed: Info.plist not found"
+        exit 1
+    fi
+
     # Generate a new UUID
     uuid=$(uuidgen)
     awk '{sub(/e395c745-4eea-4d94-bb92-46224221047c/,"'$uuid'")}1' build/BlackHole.driver/Contents/Info.plist > Temp.plist
     mv Temp.plist build/BlackHole.driver/Contents/Info.plist
     
-    mkdir Installer/root
+    mkdir -p Installer/root
     driverBundleName=$driverVartiantName.driver
     mv build/BlackHole.driver Installer/root/$driverBundleName
     rm -r build
-    
-    # Sign
-    codesign \
-      --force \
-      --deep \
-      --options runtime \
-      --sign $devTeamID \
-      Installer/root/$driverBundleName
     
     # Create package with pkgbuild
     chmod 755 Installer/Scripts/preinstall
     chmod 755 Installer/Scripts/postinstall
     
     pkgbuild \
-      --sign $devTeamID \
       --root Installer/root \
       --scripts Installer/Scripts \
+      --identifier $bundleID \
+      --version $version \
       --install-location /Library/Audio/Plug-Ins/HAL \
       "Installer/$driverName.pkg"
     rm -r Installer/root
@@ -91,7 +89,7 @@ for channels in 2; do #16 64 128 256; do
         <options customize='never' require-scripts='false' hostArchitectures='x86_64,arm64'/>
         <volume-check>
             <allowed-os-versions>
-                <os-version min='10.10'/>
+                <os-version min='10.13'/>
             </allowed-os-versions>
         </volume-check>
         <choices-outline>
@@ -106,24 +104,11 @@ for channels in 2; do #16 64 128 256; do
     # Build
     installerPkgName="$driverVartiantName-$version.pkg"
     productbuild \
-      --sign $devTeamID \
       --distribution distribution.xml \
       --resources . \
       --package-path $driverName.pkg $installerPkgName
     rm distribution.xml
     rm -f $driverName.pkg
-    
-    # Notarize and Staple
-    if [ "$notarize" = true ]; then
-        xcrun \
-          notarytool submit $installerPkgName \
-          --team-id $devTeamID \
-          --progress \
-          --wait \
-          --keychain-profile $notarizeProfile
-        
-        xcrun stapler staple $installerPkgName
-    fi
 
     cd ..
 done

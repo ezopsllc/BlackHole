@@ -1,5 +1,40 @@
 ![BlackHole: Audio Loopback Driver](Images/blackhole-banner-830px.png)
 
+# Important Notice for Hyllo Users
+
+This is a modified version of BlackHole, specifically prepared for use with Hyllo software. We are deeply grateful to the original BlackHole developers for their excellent work.
+
+## Modifications
+
+The primary modifications are:
+1. Removal of developer and software signatures
+2. Simplified distribution process
+
+These changes were made to facilitate easier distribution with Hyllo. The core functionality of BlackHole remains unchanged.
+
+## Important Notes
+
+- This version is unsigned, which may trigger security warnings on macOS.
+- Users may need to explicitly allow installation from unidentified developers.
+- While we maintain the integrity of the original BlackHole code, this modified version is not officially supported by the original BlackHole developers.
+
+## Obtaining the Modified Version
+
+To download this modified version of BlackHole:
+1. Visit [Hyllo's official website](https://hyllo.me)
+2. Click on the "Download" dropdown menu in the navigation bar
+3. Select "BlackHole for Hyllo" from the dropdown options
+4. Follow the download and installation instructions provided
+
+## Support and Original Project
+
+- For Hyllo-specific support, please contact [Hyllo Support](mailto:support@hyllo.me).
+- For the latest official version and updates, please visit the [original BlackHole project](https://github.com/ExistentialAudio/BlackHole).
+
+We encourage users to support the original BlackHole project whenever possible.
+
+---
+
 # BlackHole: Audio Loopback Driver
 
 ![Platform: macOS](https://img.shields.io/badge/platform-macOS-lightgrey)
